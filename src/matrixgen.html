@@ -1,0 +1,224 @@
+<!--This is a little quick vibecoded array generator for custom levels, by gemini-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10x10 Maze Designer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 35px);
+            grid-template-rows: repeat(10, 35px);
+            gap: 2px;
+            background-color: #ccc;
+            padding: 2px;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .cell {
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+        .cell.wall {
+            background-color: #222;
+            color: #fff;
+        }
+        .controls {
+            margin-top: 20px;
+            width: 100%;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            background-color: #0076ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0060d0;
+        }
+        button.secondary {
+            background-color: #e5e5ea;
+            color: #333;
+        }
+        button.secondary:hover {
+            background-color: #d1d1d6;
+        }
+        .output-container {
+            margin-top: 20px;
+            width: 100%;
+        }
+        label {
+            font-weight: bold;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 140px;
+            font-family: monospace;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: none;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Maze Level Designer</h2>
+    <p>Click or drag to toggle walls (1) and empty spaces (0).</p>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="controls">
+        <button class="secondary" onclick="clearGrid()">Clear All</button>
+        <button onclick="copyCode()">Copy Array JS</button>
+    </div>
+
+    <div class="output-container">
+        <label for="output">Generated JavaScript Array:</label>
+        <textarea id="output" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    const rows = 10;
+    const cols = 10;
+    let gridData = Array(rows).fill().map(() => Array(cols).fill(0));
+    let isDrawing = false;
+    let drawMode = 1; // 1 for wall, 0 for empty
+
+    const gridElement = document.getElementById('grid');
+    const outputElement = document.getElementById('output');
+
+    // Initialize Grid
+    function initGrid() {
+        gridElement.innerHTML = '';
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+                cell.textContent = '0';
+                
+                // Mouse down starts drawing
+                cell.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    isDrawing = true;
+                    drawMode = gridData[r][c] === 1 ? 0 : 1;
+                    toggleCell(cell, r, c, drawMode);
+                });
+
+                // Mouse enter continues drawing if mouse is down
+                cell.addEventListener('mouseenter', () => {
+                    if (isDrawing) {
+                        toggleCell(cell, r, c, drawMode);
+                    }
+                });
+
+                gridElement.appendChild(cell);
+            }
+        }
+        updateOutput();
+    }
+
+    // Toggle cell state
+    function toggleCell(cell, r, c, mode) {
+        gridData[r][c] = mode;
+        cell.textContent = mode;
+        if (mode === 1) {
+            cell.classList.add('wall');
+        } else {
+            cell.classList.remove('wall');
+        }
+        updateOutput();
+    }
+
+    // Global mouse up to stop drawing
+    window.addEventListener('mouseup', () => {
+        isDrawing = false;
+    });
+
+    // Update Textarea
+    function updateOutput() {
+        let jsString = "const maze = [\n";
+        gridData.forEach((row, index) => {
+            jsString += `  [${row.join(', ')}]${index < rows - 1 ? ',' : ''}\n`;
+        });
+        jsString += "];";
+        outputElement.value = jsString;
+    }
+
+    // Clear Grid
+    function clearGrid() {
+        gridData = Array(rows).fill().map(() => Array(cols).fill(0));
+        const cells = gridElement.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.classList.remove('wall');
+            cell.textContent = '0';
+        });
+        updateOutput();
+    }
+
+    // Copy to clipboard
+    function copyCode() {
+        outputElement.select();
+        document.execCommand('copy');
+        alert('JavaScript array copied to clipboard!');
+    }
+
+    // Fire it up
+    initGrid();
+</script>
+
+</body>
+</html>

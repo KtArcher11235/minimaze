@@ -1,10 +1,74 @@
-<body>
-  <h1>it works!</h1>
-  <style>
-    body { background: black; color: white; font-family: sans-serif; }
-  </style>
-  <script>
-    const title = document.querySelector("h1");
-    title.onclick = () => (title.textContent = "you clicked it");
-  </script>
-</body>
+<body style="display: grid; place-items: center;">
+<canvas id="canvas"  style="height: 50%; aspect-ratio: 1;">
+<script>
+  let score = 0;
+  //0=empty, 1=wall, 2=player, 3=goal
+  let colors = ["black", "red", "blue", "green"];
+  let level =[
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 2, 0, 0, 1, 0, 0, 0, 0, 1],
+  [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+  [1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+  [1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+  [1, 1, 1, 0, 1, 1, 1, 0, 0, 1],
+  [1, 0, 0, 0, 1, 0, 1, 1, 0, 1],
+  [1, 0, 1, 0, 0, 0, 0, 0, 3, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  ]
+  let ctx = document.querySelector("#canvas").getContext("2d");
+
+  function render(){
+    for (let i = 0; i < 10; i++){for (let j = 0; j < 10; j++){
+      ctx.fillStyle = colors[level[i][j]];
+      ctx.fillRect(canvas.width/10*j, canvas.height/10*i, canvas.width/10, canvas.height/10);
+    }}
+  }
+
+  render();
+  setInterval(() => {
+    render();
+  }, 1000/60);
+
+
+    function kill(){
+      console.log("You died!");
+    };
+
+
+  window.addEventListener("keydown", (event) => {
+    if (event.repeat) { return; }
+      if (event.key == "w"){moveplayer(0,-1);}
+      if (event.key == "s"){moveplayer(0,1);}
+      if (event.key == "a"){moveplayer(-1,0);}
+      if (event.key == "d"){moveplayer(1,0);}
+    });
+
+  function moveplayer(x,y){
+    for (let i = 0; i < 10; i++){for (let j = 0; j < 10; j++){
+      if (level[i][j] == 2){
+        if (y== -1){
+          if (level[i][j-1] == 1){
+            kill();
+          }
+        }
+        if (y== 1){
+          if (level[i][j+1] == 1){
+            kill();
+          }
+        }
+        if (x== -1){
+          if (level[i-1][j] == 1){
+            kill();
+          }
+        }
+        if (x== 1){
+          if (level[i+1][j] == 1){
+            kill();
+          }
+        }
+      }
+    }}
+    
+  }
+</script>
