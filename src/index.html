@@ -1,69 +1,164 @@
 <body style="display: grid; place-items: center;">
-<canvas id="canvas"  style="height: 50%; aspect-ratio: 1;">
+<canvas id=canvas width=500 height=500 style="height: 75%; aspect-ratio: 1;">
 <script>
+  let started = false;
+  let startTime = Date.now();
+  let points = 0;
   let score = 0;
   let colors = ["black", "red", "blue", "green", "yellow"];
   let alive = true;
   //0=empty, 1=wall, 2=player, 3=goal 4=bonus
   let level =[
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 2, 0, 0, 1, 4, 0, 0, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-  [1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-  [1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+  [0, 0, 0, 0, 1, 1, 0, 0, 0, 1],
+  [0, 2, 0, 0, 1, 4, 0, 0, 0, 1],
+  [0, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+  [0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+  [0, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
   [1, 1, 1, 0, 1, 1, 1, 0, 0, 1],
-  [1, 0, 0, 0, 1, 0, 1, 1, 0, 1],
-  [1, 0, 1, 0, 0, 0, 0, 0, 3, 1],
+  [0, 0, 0, 0, 1, 0, 1, 1, 0, 1],
+  [0, 0, 1, 0, 0, 0, 0, 0, 3, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
   ]
 
-  let ctx = document.querySelector("#canvas").getContext("2d");
+  let ctx = canvas.getContext("2d");
 
-  ctx.font = "Bold 30px Arial";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  normText();
 
+  function normText (){
+    ctx.font = "Bold 30px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+  }
+
+
+  let maxScoreLength = 0;
 
   function render(){
-    if (alive){
+    if (!started){
+      ctx.fillText("press any key to start", canvas.width/2, canvas.height/2);
+    }else if(alive){
       for (let i = 0; i < 10; i++){for (let j = 0; j < 10; j++){
-      ctx.fillStyle = colors[level[i][j]];
-      ctx.fillRect(canvas.width/10*j, canvas.height/10*i, canvas.width/10, canvas.height/10);
+        ctx.fillStyle = colors[level[i][j]];
+        ctx.fillRect(canvas.width/10*j, canvas.height/10*i, canvas.width/10, canvas.height/10);
       }}
+      displayScore();
+      
     }else{
+      normText();
       ctx.fillStyle = "black";
       ctx.fillRect(0,0,canvas.width,canvas.height);
       ctx.fillStyle = "red";
       ctx.fillText("You Were Unalived", canvas.width/2, canvas.height/2);
+      ctx.fillText("score: " + score, canvas.width/2, canvas.height/2+25);
     }
       
 
   }
 
   render();
-  colors[0] = "rgb(0,0,0,0.3)";
 
-
+  function calcScore (){
+    return(Math.round((Math.pow(points,1.5)/((Date.now()-startTime)+1))*1000000));
+  }
+ function displayScore (){
+      let i = ctx.measureText(calcScore()).width;
+      if (maxScoreLength < i){maxScoreLength = i; }
+      ctx.fillStyle = "grey"
+      ctx.fillRect(5,5,maxScoreLength+10,40)
+      ctx.font = "Bold 30px Arial";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillStyle = "white";
+      ctx.fillText(calcScore(),10,10);
+ }
   function kill(){
+      score = calcScore();
       alive = false;
       render();
   };
 
   function levelup(){
       computeNextLevel();
-
+      points += 10;
   };
 
+  function computeNextLevel(goalx,goaly,playerx,playery,bonusx,bonusy){
+
+    for (let i = 0; i < 10; i++){for (let j = 0; j < 10; j++){
+      if (level[i][j] == 2){
+        playerx = j;
+        playery = i;
+      }
+    }}
+    /*
+    Ai level gen
+    the folowing code was written by Ai, however it has been lightly edited by a human
+    the bulk of the ai code ending will be indicated with //end ai
+    */
+    
+    // 1. Initialize an 8x8 grid filled with walls (1)
+    const maze = Array.from({ length: 10 }, () => Array(10).fill(1));
+
+    // 2. Recursive DFS function
+    function visit(x, y) {
+      maze[y][x] = 0; // Mark current cell as a path
+
+      // Define movements 2 steps away (skipping the wall in between)
+      const directions = [[0, 2], [0, -2], [2, 0], [-2, 0]];
+      directions.sort(() => Math.random() - 0.5); // Randomize direction order
+
+      for (let [dx, dy] of directions) {
+        let nx = x + dx, ny = y + dy;
+    
+        // If the neighbor exists and hasn't been visited yet (is still a wall)
+        if (maze[ny] && maze[ny][nx] === 1) {
+          maze[y + dy / 2][x + dx / 2] = 0; // Knock down the wall between them
+          visit(nx, ny);                    // Move to the neighbor
+        }
+      }
+    }
+
+    // 3. Start inside the grid so row 0 and column 0 remain walls.
+    visit(0, 0);
+    level = maze;
+
+
+//end ai (notice that gpt likes comments...)
+    for (let i = 0; i<15; i++){
+      level[Math.floor(Math.random()*10)][Math.floor(Math.random()*10)] = 0;
+    }
+
+    level [playery][playerx] = 2;
+
+    do {
+      goalx = Math.floor(Math.random() * 8 + 1);
+      goaly = Math.floor(Math.random() * 8 + 1);
+    } while (goalx == playerx && goaly == playery);
+    level[goaly][goalx] = 3;
+
+    do {
+      bonusx = Math.floor(Math.random() * 8 + 1);
+      bonusy = Math.floor(Math.random() * 8 + 1);
+    } while (bonusx == playerx || bonusx == goalx && bonusx == playery || bonusy == goaly);
+    level[bonusy][bonusx] = 4;
+    clearRender();
+  };
+  function clearRender(){
+    colors = ["black", "red", "blue", "green", "yellow"];
+    render();
+    colors[0] = "rgb(0,0,0,0.3)";
+  }
 
   window.addEventListener("keydown", (event) => {
+    if (!started){started = true; startTime = Date.now(); clearRender(); return;}
     if (!alive){return;}
     if (event.repeat) { return; }
-      if (event.key == "w"){moveplayer(0,-1);}
-      if (event.key == "s"){moveplayer(0,1);}
-      if (event.key == "a"){moveplayer(-1,0);}
-      if (event.key == "d"){moveplayer(1,0);}
-      
+    if (event.key == "w" || event.key == "ArrowUp"){moveplayer(0,-1);}
+    if (event.key == "s" || event.key == "ArrowDown"){moveplayer(0,1);}
+    if (event.key == "a" || event.key == "ArrowLeft"){moveplayer(-1,0);}
+    if (event.key == "d" || event.key == "ArrowRight"){moveplayer(1,0);}
+    
     });
 
   function moveplayer(x,y){
@@ -72,9 +167,12 @@
         if (y== -1){
           switch (level[i-1][j]){
             case 3:
+              level[i][j] = 0;
+              level[i-1][j] = 2;
               levelup();
+              return;
             case 4:
-              score++;
+              points+=5;
             case 0: 
               level[i][j] = 0;
               level[i-1][j] = 2;
@@ -90,9 +188,12 @@
         if (y== 1){
           switch (level[i+1][j]){
             case 3:
+              level[i][j] = 0;
+              level[i+1][j] = 2;
               levelup();
+              return;
             case 4:
-              score++;
+              points+=5;
             case 0: 
               level[i][j] = 0;
               level[i+1][j] = 2;
@@ -108,9 +209,12 @@
         if (x== -1){
           switch (level[i][j-1]){
             case 3:
+              level[i][j] = 0;
+              level[i][j-1] = 2;
               levelup();
+              return;
             case 4:
-              score++;
+              points+=5;
             case 0: 
               level[i][j] = 0;
               level[i][j-1] = 2;
@@ -126,9 +230,12 @@
         if (x== 1){
           switch (level[i][j+1]){
             case 3:
+              level[i][j] = 0;
+              level[i][j+1] = 2;
               levelup();
+              return;
             case 4:
-              score++;
+              points+=5;
             case 0: 
               level[i][j] = 0;
               level[i][j+1] = 2;
@@ -145,4 +252,13 @@
     }}
     
   }
+  setInterval(function(){
+    if (!started){
+
+    }else if(alive){
+      displayScore();
+    }else{
+      return;
+    }
+  },10);
 </script>
