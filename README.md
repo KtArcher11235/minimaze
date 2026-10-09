@@ -4,7 +4,7 @@ A game that runs in a data URI, in 3Kb.
 
 <img width="757" height="757" alt="image" src="https://github.com/user-attachments/assets/a0ef212d-4323-472a-9ca8-7ac80e60c535" />
 
-Its a Little html app using "<canvas>" and <script> to let you move around a maze.
+Its a Little html app using `<canvas>` and `<script>` to let you move around a maze.
 
 ## build
 just download and run build.mjs with node
