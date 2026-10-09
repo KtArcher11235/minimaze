@@ -2,8 +2,11 @@
 
 A game that runs in a data URI, get the highest score possible
 
+<<<<<<< Updated upstream
 <img width="757" height="757" alt="image" src="https://github.com/user-attachments/assets/a0ef212d-4323-472a-9ca8-7ac80e60c535" />
 
+=======
+>>>>>>> Stashed changes
 ### Try it 
 paste this into a web browser 
 ```
