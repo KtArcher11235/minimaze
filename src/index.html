@@ -62,7 +62,7 @@
     return(Math.round((Math.pow(points,1.5)/((Date.now()-startTime)+1))*1000000));
   }
  function displayScore (){
-      let i = ctx.measureText(calcScore()).width;
+      let i = ctx.measureText("score: "+calcScore()).width;
       if (maxScoreLength < i){maxScoreLength = i; }
       ctx.fillStyle = "grey"
       ctx.fillRect(5,5,maxScoreLength+10,40)
@@ -70,7 +70,7 @@
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
       ctx.fillStyle = "white";
-      ctx.fillText(calcScore(),10,10);
+      ctx.fillText("score: "+ calcScore(),10,10);
  }
   function kill(){
       score = calcScore();
