@@ -1,12 +1,19 @@
 # minimaze
 
-A game that runs in a data URI, get the highest score possible
+A game that runs in a data URI, in 3Kb.
 
-<<<<<<< Updated upstream
 <img width="757" height="757" alt="image" src="https://github.com/user-attachments/assets/a0ef212d-4323-472a-9ca8-7ac80e60c535" />
 
-=======
->>>>>>> Stashed changes
+Its a Little html app using <canvas> and <script> to let you move around a maze.
+
+### build
+just download and run build.mjs with node
+(provided by <a href="https://shrink.hackclub.com/">Hackclub Shrink</a>)
+
+##### or
+
+just look at the <a href="https://github.com/KtArcher11235/minimaze/blob/main/dist/uri.txt">prebuilt</a> one here
+
 ### Try it 
 paste this into a web browser 
 ```
