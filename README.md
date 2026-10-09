@@ -1,6 +1,6 @@
 # minimaze
 
-A game that runs in a data URI, in 3Kb.
+A game that runs in a data URI, in 3Kb. Get to the green block, and pick up the yellow one, but avoid the red. Time counts against you, so speed is key.
 
 <img width="757" height="757" alt="image" src="https://github.com/user-attachments/assets/a0ef212d-4323-472a-9ca8-7ac80e60c535" />
 
